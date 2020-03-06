@@ -1,25 +1,14 @@
-import React from 'react';
+import React, { useEffect, setState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Camera } from 'expo-camera';
 import * as Permissions from 'expo-permissions';
 import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
-export default class App extends React.Component {
+const App = () => {
+  const hasPermission = true;
+  const cameraType = Camera.Constants.Type.back;
 
-  state = {
-    hasPermission: null,
-    type: Camera.Constants.Type.back,
-  };
-  
-  // async componentDidMount() {
-  //   const { status } = await Permissions.askAsync(Permissions.CAMERA);
-  //   this.setState({ hasPermission: status === 'granted' });
-  // }
-
-  async componentDidMount() {
-    this.getPermissionAsync()
-  }  
   getPermissionAsync = async () => {
       // Camera roll Permission 
       if (Platform.OS === 'ios') {
@@ -30,18 +19,13 @@ export default class App extends React.Component {
       }
       // Camera Permission
       const { status } = await Permissions.askAsync(Permissions.CAMERA);
-      this.setState({ hasPermission: status === 'granted' });
+      
     }
 
-  handleCameraType=()=>{
-    const { cameraType } = this.state
+  useEffect(() => {
+      getPermissionAsync()
+  }, []);
 
-    this.setState({cameraType:
-      cameraType === Camera.Constants.Type.back
-      ? Camera.Constants.Type.front
-      : Camera.Constants.Type.back
-    })
-  }
 
   pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -51,66 +35,49 @@ export default class App extends React.Component {
 
   takePicture = async () => {
     if (this.camera) {
-      let photo = await this.camera.takePictureAsync();
+      const data = await this.camera.takePictureAsync();
     }
   }
     
-  render() {
-    const { hasPermission } = this.state
-    if (hasPermission === null) {
-      return <View />;
-    } else if (hasPermission === false) {
-      return <Text>No access to camera</Text>;
-    } else {
-      return (
-          <View style={{ flex: 1 }}>
-            <Camera style={{ flex: 1 }} type={this.state.cameraType} ref={ref => {
-    this.camera = ref;
-  }}>
-            <View style={{flex:1, flexDirection:"row",justifyContent:"space-between",margin:20}}>
-                <TouchableOpacity
-                  style={{
-                    alignSelf: 'flex-end',
-                    alignItems: 'center',
-                    backgroundColor: 'transparent',                  
-                  }}
-                  onPress={() => this.pickImage()}>
-                  <Ionicons
-                      name="ios-photos"
-                      style={{ color: "#fff", fontSize: 40}}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    alignSelf: 'flex-end',
-                    alignItems: 'center',
-                    backgroundColor: 'transparent',
-                  }}
-                  onPress={() => this.takePicture()}
-                  >
-                  <FontAwesome
-                      name="camera"
-                      style={{ color: "#fff", fontSize: 40}}
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    alignSelf: 'flex-end',
-                    alignItems: 'center',
-                    backgroundColor: 'transparent',
-                  }}
-                  onPress={()=>this.handleCameraType()}>
-                  <MaterialCommunityIcons
-                      name="camera-switch"
-                      style={{ color: "#fff", fontSize: 40}}
-                  />
-                </TouchableOpacity>
-              </View>
-            </Camera>
-        </View>
-      );
-    }
-  };
+  if (hasPermission === null) {
+    return <View />;
+  } else if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  } else {
+    return (
+        <View style={{ flex: 1 }}>
+          <Camera style={{ flex: 1 }} type={cameraType}>
+          <View style={{flex:1, flexDirection:"row",justifyContent:"space-between",margin:20}}>
+              <TouchableOpacity
+                style={{
+                  alignSelf: 'flex-end',
+                  alignItems: 'center',
+                  backgroundColor: 'transparent',                  
+                }}
+                onPress={() => this.pickImage()}>
+                <Ionicons
+                    name="ios-photos"
+                    style={{ color: "#fff", fontSize: 40}}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  alignSelf: 'flex-end',
+                  alignItems: 'center',
+                  backgroundColor: 'transparent',
+                }}
+                onPress={() => this.takePicture()}
+                >
+                <FontAwesome
+                    name="camera"
+                    style={{ color: "#fff", fontSize: 40}}
+                />
+              </TouchableOpacity>
+            </View>
+          </Camera>
+      </View>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
@@ -121,3 +88,62 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default App;
+
+// 'use strict';
+// import React, { PureComponent, useState, useEffect } from 'react';
+// import { AppRegistry, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+// import { RNCamera } from 'react-native-camera';
+// import * as Permissions from 'expo-permissions';
+
+
+// const CameraApp = () => {
+//     let [flash, setFlash] = useState('off')
+//     let [zoom, setZoom] = useState(0)
+//     let [autoFocus, setAutoFocus] = useState('on')
+//     let [depth, setDepth] = useState(0)
+//     let [type, setType] = useState('back')
+//     let [permission, setPermission] = useState('undetermined')
+
+//     const { status } = await Permissions.askAsync(Permissions.CAMERA);
+// //       this.setState({ hasPermission: status === 'granted' });
+//     // let cameraRef = useRef(null)
+//     useEffect(() => {
+//         Permissions.check('photo').then(response => {
+//         // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+//         setPermission(response);
+//         });
+//     }, []);
+
+//     toggleFlash = () => {
+//         setFlash(flashModeOrder[flash])
+//     }
+//     zoomOut = () => {
+//         setZoom(zoom - 0.1 < 0 ? 0 : zoom - 0.1)
+//     }
+//     zoomIn = () => {    
+//         setZoom(zoom + 0.1 > 1 ? 1 : zoom + 0.1);
+//     }
+//     takePicture = async() => {
+//         if (cameraRef) {
+//             const options = { quality: 0.5, base64: true };
+//             const data = await cameraRef.current.takePictureAsync(soptions);
+//             console.log(data.uri);  
+//         }
+//     };
+//     return (
+//       <View >
+//         <RNCamera
+//           type={type}
+//           flashMode={flash}
+//         />
+//         <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
+//           <TouchableOpacity onPress={takePicture}>
+//             <Text style={{ fontSize: 14 }}> SNAP </Text>
+//           </TouchableOpacity>
+//         </View>
+//       </View>
+//     );
+// }
+// export default CameraApp;
